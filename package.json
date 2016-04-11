@@ -1,14 +1,14 @@
 {
-  "name": "react-hot-boilerplate",
+  "name": "comp4441-project",
   "version": "1.0.0",
-  "description": "Boilerplate for ReactJS project with hot code reloading",
+  "description": "comp4441 project A+ confirmed",
   "scripts": {
     "start": "node server.js",
     "lint": "eslint src"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaearon/react-hot-boilerplate.git"
+    "url": "https://github.com/roytang121/phaser-game-demo"
   },
   "keywords": [
     "react",
