@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import leftpad from 'left-pad';
 import Beat from './Beat';
+import getUserMedia from 'getusermedia';
 
 let game = null;
 let player = null;
@@ -19,9 +20,12 @@ let startGameTime = 0; // in ms
 let kStartGameCounterInterval = 1500;
 let kStartGameCounterShouldEndAtTime = kStartGameCounterInterval * 3
 let startGameCounter = null;
+let beats = [new Beat(1), new Beat(2), new Beat(3)];
+let beatSprites = [];
 
 let tempo = 3;
 
+let self = null;
 
 import style from './style.css';
 
@@ -29,19 +33,19 @@ export default class App extends Component {
   constructor(props) {
     super(props)
 
+    self = this;
+
     this.game = null;
     this.player = null;
     this.platforms = null;
     this.cursors = null;
-
-    this.state = {
-      beats: [new Beat(0), new Beat(1), new Beat(2), new Beat(3)],
-      beatSprites: [],
-    }
   }
 
   componentDidMount() {
     console.log("onComponentDidMount");
+
+    // setupUserMedia
+    this.setupUserMedia();
 
     // 4th argument is the DOM id to be inserted in, default appending to body
     this.game = new Phaser.Game(800, 470, Phaser.AUTO, '', {
@@ -67,6 +71,7 @@ export default class App extends Component {
     this.game.load.image('bottombg', 'assets/img/bottombg.png');
     this.game.load.image('topbg', 'assets/img/topbg.png');
     this.game.load.image('beat', 'assets/img/beat.png');
+    this.game.load.image('beat-placeholder', 'assets/img/beat_placeholder.png');
     this.game.load.spritesheet('nyancat', 'assets/img/nyancat_run_sheet.png', 272, 168);
 
     // font
@@ -140,6 +145,8 @@ export default class App extends Component {
 
 
     // add beats to canvas
+
+    game.add.sprite(240, 117.5, 'beat-placeholder');
     this.constructBeats();
   }
 
@@ -159,7 +166,7 @@ export default class App extends Component {
 
       gameTime = Math.abs(Date.now() - gameStartTimestamp);
       // console.log(gameTime);
-      totalPoint += 1;
+      // totalPoint += 1;
       this.computeBeats();
     }
 
@@ -217,8 +224,6 @@ export default class App extends Component {
   }
 
   constructBeats() {
-    let beats = this.state.beats;
-
     let originX = 240;
     let originY = 117.5; 
     var sprites = [];
@@ -227,20 +232,74 @@ export default class App extends Component {
       sprites.push(s);
     }
 
-    this.setState({
-      beatSprites: sprites
-    })
+    beatSprites = sprites
   }
 
   computeBeats() {
-    let sprites = this.state.beatSprites;
+    let sprites = beatSprites;
     for (var sprite of sprites) {
       sprite.x -= 1 * tempo;
 
       if (sprite.x < 240) {
+        beatSprites.shift();
+        beats.shift();
         sprite.destroy();
       }
     }
+  }
+
+  didTriggerClap() {
+    console.log("clap");
+    if (beats.length <= 0 || beatSprites.length <= 0) {
+      console.error('[Error] didTriggerClap but beats / beatSprites length <= 0');
+      return;
+    }
+
+    let firstBeat = beats[0];
+    let firstBeatSprite = beatSprites[0];
+
+    if (firstBeat.startTime * 1000 - gameTime < 500) {
+      // add points
+      totalPoint += 1000
+    }
+  }
+
+  // @Author Middle
+  setupUserMedia() {
+    var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    var lock = false;
+
+    getUserMedia({audio:true}, (err, stream) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('got s stream', stream);
+
+        var source = audioContext.createMediaStreamSource(stream);
+        var node = audioContext.createScriptProcessor(256, 1,1);
+        node.onaudioprocess = function(e){
+          var data = e.inputBuffer.getChannelData(0);
+          if (lock==false){
+            for (var i =0 ; i<256; i++){
+              if (Math.abs(data[i])>0.9){
+                // console.log("up");
+                self.didTriggerClap();
+
+                lock=true;
+                break;
+              }
+            }
+          }else{
+            if (Math.abs(e.inputBuffer.getChannelData(0)[100])<0.001){
+              // console.log("down");
+              lock=false;
+            }
+          }
+        }
+        source.connect(node);
+        node.connect(audioContext.destination);
+      }
+    });
   }
 
   render() {
