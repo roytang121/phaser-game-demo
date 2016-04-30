@@ -30,9 +30,12 @@
   "dependencies": {
     "browser-sync": "^2.11.2",
     "browser-sync-webpack-plugin": "^1.0.1",
+    "css-loader": "^0.23.1",
+    "left-pad": "^1.0.2",
     "phaser": "^2.4.6",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
-    "script-loader": "^0.6.1"
+    "script-loader": "^0.6.1",
+    "style-loader": "^0.13.1"
   }
 }

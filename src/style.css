@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'Riit';
+  src: url('/assets/font/riit.otf') format("opentype");
+}
+
+h1 {
+  font-family: Riit;
+}
