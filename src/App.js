@@ -152,7 +152,7 @@ export default class App extends Component {
 
     totalPointText.text = leftpad(totalPoint.toString(), 5, 0);
 
-    if (true) {
+    if (gameShouldStart) {
       if (gameStartTimestamp === null) {
         gameStartTimestamp = Date.now();
       }
