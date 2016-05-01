@@ -258,7 +258,7 @@ export default class App extends Component {
     let firstBeat = beats[0];
     let firstBeatSprite = beatSprites[0];
 
-    if (firstBeat.startTime * 1000 - gameTime < 500) {
+    if (firstBeat.startTime * 1000 - gameTime < 800) {
       // add points
       totalPoint += 1000
     }

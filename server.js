@@ -28,10 +28,10 @@ app.use(wdsMiddleware(webpack(config), {
   stats: { colors: true, watch: true }
 }))
 
-var sslOptions = {
-  key: fs.readFileSync(path.resolve('./ssl/server.key')),
-  cert: fs.readFileSync(path.resolve('./ssl/server.crt'))
-}
+// var sslOptions = {
+//   key: fs.readFileSync(path.resolve('./ssl/server.key')),
+//   cert: fs.readFileSync(path.resolve('./ssl/server.crt'))
+// }
 
 
 app.listen(3000, function (err) {
