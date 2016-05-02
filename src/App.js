@@ -86,6 +86,7 @@ export default class App extends Component {
     // audio
     this.game.load.audio('win-audio', 'assets/audio/90.wav');
     this.game.load.audio('lose-audio', 'assets/audio/lose.wav');
+    this.game.load.audio('ready', 'assets/audio/1.wav');
   }
 
   create() {
@@ -277,6 +278,9 @@ export default class App extends Component {
 
   startgameCounterUpdate() {
     // console.log(startGameTime);
+
+    // play game ready sound
+    this.game.add.audio('ready').play();
 
     let time = 3 - (startGameTime / kStartGameCounterShouldEndAtTime * 3)
     console.log(time);
