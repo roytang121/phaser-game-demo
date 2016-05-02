@@ -33,6 +33,7 @@
     "compression": "^1.6.1",
     "css-loader": "^0.23.1",
     "express": "^4.13.4",
+    "fs-extra": "^0.30.0",
     "getusermedia": "^1.3.7",
     "http": "0.0.0",
     "https": "^1.0.0",

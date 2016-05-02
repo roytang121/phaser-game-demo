@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import leftpad from 'left-pad';
 import Beat from './Beat';
 import getUserMedia from 'getusermedia';
+import Parser from './Parser';
 
 let game = null;
 let player = null;
@@ -15,17 +16,20 @@ let gameStartTimestamp = null;
 // let kGameTimeInterval = 100;
 // let gameTimer = null;
 let gameShouldStart = false;
+let gameShouldEnd = false;
 
 let startGameTime = 0; // in ms
 let kStartGameCounterInterval = 1500;
 let kStartGameCounterShouldEndAtTime = kStartGameCounterInterval * 3
 let startGameCounter = null;
-let beats = [new Beat(1), new Beat(2), new Beat(3)];
+let beats = [];
 let beatSprites = [];
 
-let tempo = 3;
+let tempo = 5;
 
 let self = null;
+
+let audioFile = null;
 
 import style from './style.css';
 
@@ -56,8 +60,6 @@ export default class App extends Component {
 
     game = this.game;
 
-    // count 3 seconds to start game
-    startGameCounter = setInterval(this.startgameCounterUpdate.bind(this), kStartGameCounterInterval);
   }
 
   preload() {
@@ -147,7 +149,7 @@ export default class App extends Component {
     // add beats to canvas
 
     game.add.sprite(240, 117.5, 'beat-placeholder');
-    this.constructBeats();
+    // this.constructBeats();
   }
 
   update() {
@@ -168,8 +170,16 @@ export default class App extends Component {
       // console.log(gameTime);
       // totalPoint += 1;
       this.computeBeats();
+
+      if (beatSprites.length <= 0) {
+        gameShouldStart = false;
+        gameShouldEnd = true;
+      }
     }
 
+    if (gameShouldEnd) {
+
+    }
     // if (!this.cursors) return;
     //
     // var cursors = this.cursors;
@@ -220,6 +230,10 @@ export default class App extends Component {
 
       // start Game Timer
       gameShouldStart = true;
+
+      // play the audio file
+      var audio = new Audio(audioFile.name);
+      audio.play();
     }
   }
 
@@ -292,6 +306,7 @@ export default class App extends Component {
           }else{
             if (Math.abs(e.inputBuffer.getChannelData(0)[100])<0.001){
               // console.log("down");
+
               lock=false;
             }
           }
@@ -300,11 +315,34 @@ export default class App extends Component {
         node.connect(audioContext.destination);
       }
     });
+
+    // audio file
+    $("document").ready(function() {
+      $('#audio_file').change(function() {
+
+        audioFile = this.files[0];
+        console.log(audioFile);
+        var parser = new Parser(this.files[0], (peaks) => {
+          // console.log(peaks);
+          for (var peak of peaks) {
+            beats.push(new Beat(peak/1000));
+          }
+
+          self.constructBeats();
+
+          // count 3 seconds to start game
+          startGameCounter = setInterval(self.startgameCounterUpdate.bind(self), kStartGameCounterInterval);
+        });
+      });
+    });
   }
 
   render() {
     return (
-      <h1>Comp 4441</h1>
+      <div>
+        <input id="audio_file" type="file" accept="audio/*"></input>
+        <h1>Comp 4441</h1>
+      </div>
     );
   }
 }
