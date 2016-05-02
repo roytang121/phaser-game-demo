@@ -9,6 +9,7 @@ let player = null;
 let groundHeight = 25;
 let totalPointText = null;
 let totalPoint = 0;
+let fullPoint = 0;
 let comboCount = 0;
 
 let gameTime = 0; // in ms
@@ -17,6 +18,7 @@ let gameStartTimestamp = null;
 // let gameTimer = null;
 let gameShouldStart = false;
 let gameShouldEnd = false;
+let gameEnded = false;
 
 let startGameTime = 0; // in ms
 let kStartGameCounterInterval = 1500;
@@ -52,7 +54,7 @@ export default class App extends Component {
     this.setupUserMedia();
 
     // 4th argument is the DOM id to be inserted in, default appending to body
-    this.game = new Phaser.Game(800, 470, Phaser.AUTO, '', {
+    this.game = new Phaser.Game(800, 470, Phaser.AUTO, 'container', {
       preload: this.preload.bind(this),
       create: this.create.bind(this),
       update: this.update.bind(this)
@@ -74,10 +76,16 @@ export default class App extends Component {
     this.game.load.image('topbg', 'assets/img/topbg.png');
     this.game.load.image('beat', 'assets/img/beat.png');
     this.game.load.image('beat-placeholder', 'assets/img/beat_placeholder.png');
+    this.game.load.image('win-screen', 'assets/img/win_screen.png');
+    this.game.load.image('lose-screen', 'assets/img/lose_screen.png');
     this.game.load.spritesheet('nyancat', 'assets/img/nyancat_run_sheet.png', 272, 168);
 
     // font
     // this.game.load.bitmapFont('riit', 'assets/font/riit.otf', null);
+
+    // audio
+    this.game.load.audio('win-audio', 'assets/audio/90.wav');
+    this.game.load.audio('lose-audio', 'assets/audio/lose.wav');
   }
 
   create() {
@@ -177,8 +185,10 @@ export default class App extends Component {
       }
     }
 
-    if (gameShouldEnd) {
-
+    if (!gameEnded && gameShouldEnd) {
+      console.log("Game Should End");
+      gameEnded = true;
+      this.gameWillEnd();
     }
     // if (!this.cursors) return;
     //
@@ -216,6 +226,55 @@ export default class App extends Component {
     // }
   }
 
+  gameWillEnd() {
+    let result = totalPoint/fullPoint;
+    if (result > 0.5) {
+      this.gameWillWin();
+    } else {
+      this.gameWillLose();
+    }
+  }
+
+  gameWillWin() {
+
+    var win = game.add.sprite(0, 0, 'win-screen');
+    // win.anchor.setTo(0.5,0.5);
+    win.alpha = 0;
+    game.add.tween(win).to({
+      alpha: 1
+    }, 750,Phaser.Easing.Linear.None, true, 0, 0, false);
+
+    let counter = 0;
+    let looper = setInterval(()=>{
+      var music = game.add.audio('win-audio');
+      music.play();
+      counter+=1;
+      if (counter > 3) {
+        clearInterval(looper);
+      }
+    }, 3000);
+  }
+
+  gameWillLose() {
+
+    var lose = game.add.sprite(0, 0, 'lose-screen');
+    // win.anchor.setTo(0.5,0.5);
+    lose.alpha = 0;
+    game.add.tween(lose).to({
+      alpha: 1
+    }, 750,Phaser.Easing.Linear.None, true, 0, 0, false);
+
+    let counter = 0;
+    let looper = setInterval(()=>{
+      var music = game.add.audio('lose-audio');
+      music.play();
+      counter+=1;
+      if (counter > 3) {
+        clearInterval(looper);
+      }
+    }, 3000);
+  }
+
   startgameCounterUpdate() {
     // console.log(startGameTime);
 
@@ -247,6 +306,10 @@ export default class App extends Component {
     }
 
     beatSprites = sprites
+
+    fullPoint = sprites.length * 1000;
+
+    console.log("fullPoint: " + fullPoint);
   }
 
   computeBeats() {
@@ -340,8 +403,11 @@ export default class App extends Component {
   render() {
     return (
       <div>
+        <div id="bg"> </div>
         <input id="audio_file" type="file" accept="audio/*"></input>
         <h1>Comp 4441</h1>
+        <div id="container" className="container"></div>
+
       </div>
     );
   }

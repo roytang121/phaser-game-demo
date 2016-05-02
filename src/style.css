@@ -5,4 +5,29 @@
 
 h1 {
   font-family: Riit;
+  color: #FFF;
+  width: 100%;
+  text-align: center;
+}
+
+#bg {
+  background-image: url('/assets/img/bg.jpg');
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -100;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-filter: blur(10px) brightness(60%);
+  filter: blur(10px) brightness(60%);
+}
+
+.container {
+  display: flex;
+}
+
+.container > canvas {
+  margin: auto;
 }
