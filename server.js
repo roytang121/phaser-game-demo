@@ -16,15 +16,14 @@ var app = express();
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'static')));
 
-
 app.use(wdsMiddleware(webpack(config), {
   // proxy: {
   //   '*': 'http://localhost:3001/'
   // }
-  publicPath: path.resolve('/static/'),
+  publicPath: 'http://localhost:3000/static/',
   hot: false,
   historyApiFallback: true,
-  contentBase: path.resolve('./static'),
+  contentBase: path.join(__dirname, 'static'),
   stats: { colors: true, watch: true }
 }))
 
